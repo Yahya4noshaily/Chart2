@@ -154,6 +154,15 @@ public final class CaptureService extends Service {
             String mode = getSharedPreferences("yn", MODE_PRIVATE).getString("mode", "متوازن");
             StrategyEngine.Candidate candidate = StrategyEngine.analyze(scan.candles, mode);
             processCandidate(candidate, scan, now);
+            if (now - lastBubbleUpdateAt >= 3400) {
+                lastBubbleUpdateAt = now;
+                final String badgeText = "YN MT5  ●  " + scan.candles.size() + " CANDLES\n" +
+                        (scan.candles.size() >= 24 ? "STRATEGIES LIVE" :
+                                "ZOOM OUT / SHOW CANDLES");
+                main.post(() -> {
+                    if (floating != null) floating.updateScanning(badgeText);
+                });
+            }
 
             if (now - lastBroadcastAt > 4800) {
                 lastBroadcastAt = now;
