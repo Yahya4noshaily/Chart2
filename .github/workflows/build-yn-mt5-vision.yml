@@ -31,7 +31,7 @@ jobs:
       - name: Strategy gate smoke tests
         run: |
           mkdir -p /tmp/yn-tests
-          javac -d /tmp/yn-tests app/src/main/java/com/yn/mt5vision/StrategyEngine.java tests/StrategySmokeTest.java
+          javac -d /tmp/yn-tests app/src/main/java/com/yn/mt5vision/StrategyEngine.java app/src/main/java/com/yn/mt5vision/CandlePalette.java tests/StrategySmokeTest.java
           java -cp /tmp/yn-tests com.yn.mt5vision.StrategySmokeTest
       - name: Build debug APK
         run: gradle --no-daemon --stacktrace :app:assembleDebug
