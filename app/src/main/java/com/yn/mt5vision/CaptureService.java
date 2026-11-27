@@ -152,13 +152,14 @@ public final class CaptureService extends Service {
 
             ChartScanner.Scan scan = ChartScanner.scan(bitmap);
             String mode = getSharedPreferences("yn", MODE_PRIVATE).getString("mode", "متوازن");
-            StrategyEngine.Candidate candidate = StrategyEngine.analyze(scan.candles, mode);
+            SignalGuard.Decision decision = SignalGuard.evaluate(scan.candles, mode);
+            StrategyEngine.Candidate candidate = decision.candidate;
             processCandidate(candidate, scan, now);
             if (now - lastBubbleUpdateAt >= 3400) {
                 lastBubbleUpdateAt = now;
                 final String badgeText = "YN MT5  ●  " + scan.candles.size() + " CANDLES\n" +
-                        (scan.candles.size() >= 24 ? "STRATEGIES LIVE" :
-                                "ZOOM OUT / SHOW CANDLES");
+                        (scan.candles.size() >= 29 ? decision.reason :
+                                "ZOOM OUT / SHOW 29+ CANDLES");
                 main.post(() -> {
                     if (floating != null) floating.updateScanning(badgeText);
                 });
@@ -166,8 +167,8 @@ public final class CaptureService extends Service {
 
             if (now - lastBroadcastAt > 4800) {
                 lastBroadcastAt = now;
-                String msg = scan.message;
-                if (scan.candles.size() >= 24 && (scale == null || now - scaleAt > 12000)) {
+                String msg = scan.message + "\n" + decision.reason;
+                if (scan.candles.size() >= 29 && (scale == null || now - scaleAt > 12000)) {
                     msg += "\nمقياس الأسعار غير مؤكد؛ راجع الأسعار من MT5";
                 }
                 publishStatus(msg, null);
@@ -214,12 +215,12 @@ public final class CaptureService extends Service {
             return;
         }
         pending = c; pendingCount++;
-        if (pendingCount < 2 || now - firstPendingAt < 1150) return;
+        if (pendingCount < 3 || now - firstPendingAt < 2400) return;
 
         // Keep a snapshot of one setup; do not re-alert identical setups every frame.
         String key = c.identity();
         if (key.equals(emittedKey) && now - emittedAt < 90000) return;
-        if (now - emittedAt < 18000) return; // minimum separation between opposing alerts
+        if (now - emittedAt < 45000) return; // prevent immediate contradictory alerts
         emittedKey = key;
         emittedAt = now;
         emitSignal(c, scan, now);
@@ -246,7 +247,7 @@ public final class CaptureService extends Service {
         }
         String text = direction + "\n" + c.strategy + "\n" +
                 entry + "\n" + stop + "\n" + target +
-                "\nتوافق الشروط: " + c.strengthLabel() + " (ليس معدل نجاح)" +
+                "\nدرجة توافق القواعد: " + c.strengthLabel() + " (ليست نسبة ربح)" +
                 "\nتجريبي — تحقق من الأسعار قبل التداول";
         getSharedPreferences("yn", MODE_PRIVATE).edit().putString("last", text).apply();
         publishStatus("إشارة استراتيجية جديدة — تحقق منها في MT5", text);

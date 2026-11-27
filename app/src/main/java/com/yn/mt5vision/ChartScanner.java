@@ -74,7 +74,7 @@ public final class ChartScanner {
                 int hits = 0; int colored = 0;
                 for (int x = sx + start; x <= sx + end; x++) {
                     int kind = CandlePalette.classify(pixels[y * w + x]);
-                    if (kind != 0) colored++;
+                    if (kind == (bull ? 1 : -1)) colored++;
                     if ((bull && kind > 0) || (!bull && kind < 0)) hits++;
                 }
                 if (colored > 0) { highY = Math.min(highY, y); lowY = Math.max(lowY, y); }
@@ -96,8 +96,8 @@ public final class ChartScanner {
                     sx + (start + end) / 2));
         }
         String msg;
-        if (candles.size() < 24) {
-            msg = "تم رصد " + candles.size() + " شمعة فقط؛ افتح M1 وأظهر 24+ شمعة بألوان أحمر/أخضر أو تركوازي واضحة";
+        if (candles.size() < 29) {
+            msg = "تم رصد " + candles.size() + " شمعة فقط؛ افتح M1 وأظهر 29+ شمعة بألوان أحمر/أخضر أو تركوازي واضحة";
         } else {
             msg = "تم تمييز " + candles.size() + " شمعة وتحليل فرص الدخول";
         }

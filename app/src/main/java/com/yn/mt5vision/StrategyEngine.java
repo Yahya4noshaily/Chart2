@@ -82,8 +82,8 @@ public final class StrategyEngine {
         if (c.low < support - atr * 0.08 && c.close > support + atr * 0.10
                 && c.bullish() && c.lowerWick() > Math.max(c.body() * 0.65, c.range() * 0.30)) {
             double bonus = c.close > p.high ? 0.07 : 0.0;
-            found.add(new Setup(Side.BUY, bonus > 0 ? "Liquidity Sweep + MSS" :
-                    "Liquidity Sweep + Reclaim", 0.83 + bonus, c.low - atr * 0.14));
+            found.add(new Setup(Side.BUY, bonus > 0 ? "Sweep + Micro Break" :
+                    "Liquidity Sweep + Reclaim", 0.86 + bonus, c.low - atr * 0.14));
         }
         if (c.high > resistance + atr * 0.08 && c.close < resistance - atr * 0.10
                 && c.bearish() && c.upperWick() > Math.max(c.body() * 0.65, c.range() * 0.30)) {
@@ -128,15 +128,16 @@ public final class StrategyEngine {
         double sd = stdev(candles, n - 21, n - 1, mean);
         double z = sd > 0.001 ? (c.close - mean) / sd : 0;
         double rsi = rsi(candles, 14);
-        if (z < -1.55 && rsi < 42 && c.bullish() && c.lowerWick() > c.body() * 0.45
+        boolean meanRevRange = Math.abs(ema(candles, 9) - ema(candles, 21)) < atr * 0.34;
+        if (meanRevRange && z < -1.55 && rsi < 42 && c.bullish() && c.lowerWick() > c.body() * 0.45
                 && c.close > p.close - atr * 0.14) {
             found.add(new Setup(Side.BUY, "Mean Reversion + Rejection",
-                    0.78 + (rsi < 33 ? 0.045 : 0), c.low - atr * 0.20));
+                    0.84 + (rsi < 33 ? 0.045 : 0), c.low - atr * 0.20));
         }
-        if (z > 1.55 && rsi > 58 && c.bearish() && c.upperWick() > c.body() * 0.45
+        if (meanRevRange && z > 1.55 && rsi > 58 && c.bearish() && c.upperWick() > c.body() * 0.45
                 && c.close < p.close + atr * 0.14) {
             found.add(new Setup(Side.SELL, "Mean Reversion + Rejection",
-                    0.78 + (rsi > 67 ? 0.045 : 0), c.high + atr * 0.20));
+                    0.84 + (rsi > 67 ? 0.045 : 0), c.high + atr * 0.20));
         }
 
         // 5. Compression -> expansion breakout, using *relative* candle ranges.
@@ -163,13 +164,13 @@ public final class StrategyEngine {
                 && c.low <= ema9 + atr * 0.15 && c.close > ema9 + 0.14 * atr
                 && c.close < ema9 + atr * 1.05 && c.lowerWick() > c.upperWick() * 0.9
                 && bodyFraction > 0.30) {
-            found.add(new Setup(Side.BUY, "Momentum Pullback", 0.77, c.low - 0.20 * atr));
+            found.add(new Setup(Side.BUY, "Momentum Pullback", 0.81, c.low - 0.20 * atr));
         }
         if (ema9 < ema21 - atr * 0.18 && c.bearish()
                 && c.high >= ema9 - atr * 0.15 && c.close < ema9 - 0.14 * atr
                 && c.close > ema9 - atr * 1.05 && c.upperWick() > c.lowerWick() * 0.9
                 && bodyFraction > 0.30) {
-            found.add(new Setup(Side.SELL, "Momentum Pullback", 0.77, c.high + 0.20 * atr));
+            found.add(new Setup(Side.SELL, "Momentum Pullback", 0.81, c.high + 0.20 * atr));
         }
 
         if (found.isEmpty()) return null;
@@ -200,8 +201,8 @@ public final class StrategyEngine {
             }
         }
         if (best == null || rivalScore >= bestScore - 0.12) return null;
-        double threshold = "محافظ".equals(mode) ? 0.89 :
-                ("هجومي".equals(mode) ? 0.74 : 0.81);
+        double threshold = "محافظ".equals(mode) ? 0.90 :
+                ("هجومي".equals(mode) ? 0.80 : 0.85);
         if (bestScore < threshold) return null;
         double entry = c.close;
         double risk = Math.abs(entry - best.stop);

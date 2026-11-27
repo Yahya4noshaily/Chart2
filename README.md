@@ -32,3 +32,13 @@ GitHub Actions uploads a **debug Android APK** as a workflow artifact. No app si
 
 ## v0.2.0 beta — screenshot-based fix
 Identified a real bug on an XAUUSD M1 screenshot: old segmentation classified ~15 bearish-only groups and rejected teal bullish candle pixels. Corrected pure-Java candle palette and confirmed 33 reconstructed candles on the provided screenshot in a separate offline pixel-geometry check. A candle being recognized does not guarantee a qualified entry; rules remain in place to avoid forced trades.
+
+
+## v0.3.0-beta — stricter entry timing (not validated profitability)
+- Strategy patterns are now detected **exclusively on completed candles**, never on the still-forming bar.
+- The live candle acts as a strict execution gate: reject late chase, broken zone, strong opposite pressure, prior SL/TP touch, inconsistent candle geometry, and excess risk.
+- On-screen Arabic rejection reason displayed rather than a silent SCANNING label.
+- Three consecutive consistent snapshots needed before an alert; minimum spacing between opposite alerts.
+- Countertrend mean reversion now requires an approximately ranging structure.
+- Candlestick wick extraction excludes opposite-color pixels sharing the same x-column.
+- No historical MT5 data, spread, tick or order-book feeds are available to this offline screenshot scanner; no claims of 90%/99% hit rate or zero reversal. Demo trade evaluation is essential.
