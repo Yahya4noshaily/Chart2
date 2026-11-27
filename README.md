@@ -42,3 +42,9 @@ Identified a real bug on an XAUUSD M1 screenshot: old segmentation classified ~1
 - Countertrend mean reversion now requires an approximately ranging structure.
 - Candlestick wick extraction excludes opposite-color pixels sharing the same x-column.
 - No historical MT5 data, spread, tick or order-book feeds are available to this offline screenshot scanner; no claims of 90%/99% hit rate or zero reversal. Demo trade evaluation is essential.
+
+## v0.3.1 beta — lightweight Android ARM64 package
+- Produces a *single, signed* APK for arm64-v8a Android handsets (e.g. Infinix GT 30 Pro). Not for x86 or 32-bit-only phones.
+- Keeps bundled OCR and the existing strategy logic unchanged.
+- GitHub Actions validates the ZIP internal structure, Android APK signing, ABI, and SHA-256 before distribution.
+- A phone showing "problem parsing package" with a download smaller than the published size almost certainly has an incomplete/corrupted download. Compare actual file size and SHA-256.

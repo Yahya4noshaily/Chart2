@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   android:
-    name: Build Android APK
+    name: Build and verify ARM64 APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
@@ -35,10 +35,24 @@ jobs:
           java -cp /tmp/yn-tests com.yn.mt5vision.StrategySmokeTest
       - name: Build debug APK
         run: gradle --no-daemon --stacktrace :app:assembleDebug
-      - name: Upload installable APK
+      - name: Verify full package, Android signing and device ABI
+        run: |
+          set -euxo pipefail
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          unzip -tq "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | head -n 10
+          unzip -l "$APK" | grep 'lib/arm64-v8a/libmlkit_google_ocr_pipeline.so'
+          if unzip -Z1 "$APK" | grep -E '^lib/(x86|x86_64|armeabi-v7a)/'; then
+            echo "Unexpected native architecture found" >&2
+            exit 1
+          fi
+          sha256sum "$APK"
+          wc -c "$APK"
+      - name: Upload verified installable APK
         uses: actions/upload-artifact@v4
         with:
-          name: YN-MT5-Vision-APK
+          name: YN-MT5-Vision-v0.3.1-ARM64-APK
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
