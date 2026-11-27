@@ -19,7 +19,7 @@ final class FloatingBadge {
     private FrameLayout frame;
     private TextView label;
     private WindowManager.LayoutParams params;
-    private int sideColor = Color.rgb(32, 62, 78);
+    private int sideColor = Color.rgb(32, 62, 78);\n    private boolean showingSignal = false;
 
     FloatingBadge(Context context) {
         this.context = context;
@@ -77,7 +77,7 @@ final class FloatingBadge {
         label.setText(info);
         frame.setBackground(drawable(sideColor));
     }
-    void hideSignal() { update("YN MT5 VISION  ●  SCANNING", null); }
+    void updateScanning(String message) {\n        if (!showingSignal) update(message, null);\n    }\n    void hideSignal() { update("YN MT5  ●  SCANNING", null); }
     void close() {
         if (frame != null) {
             try { wm.removeView(frame); } catch (Exception ignored) {}
