@@ -48,7 +48,7 @@ final class FloatingBadge {
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.TOP | Gravity.RIGHT;
-        params.x = dp(14); params.y = dp(130);
+        params.x = dp(14); params.y = dp(24);
         frame.setOnTouchListener(new View.OnTouchListener() {
             private float startRawX, startRawY; private int initialX, initialY;
             @Override public boolean onTouch(View v, MotionEvent event) {
