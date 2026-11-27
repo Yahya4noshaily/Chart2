@@ -62,7 +62,7 @@ public final class StrategyEngine {
     }
 
     public static Candidate analyze(List<Candle> candles, String mode) {
-        if (candles == null || candles.size() < 29) return null;
+        if (candles == null || candles.size() < 24) return null;
         final int n = candles.size();
         final Candle c = candles.get(n - 1);
         final Candle p = candles.get(n - 2);
