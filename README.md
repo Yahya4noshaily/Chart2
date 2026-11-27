@@ -14,14 +14,14 @@ An independent experimental Android APK for *reading MT5 charts visually* after 
 ## Key limitations
 - This is an **untested beta**, not verified to achieve a particular win rate. No bot can guarantee zero reversals or profits.
 - Screenshot analysis is fundamentally less reliable than access to real OHLC/tick/bid/ask/spread data.
-- Supported candle color themes: visually distinct red and green candles, with 30+ bars visible. If candles are white/black or grid overlaps heavily, readings may fail; no signal is a safer result.
+- Supported candle colors: red and bright green/MT5 teal candles; at least 24 bars visible. The scanner now reads more of the chart viewport and exposes detected bar counts in the floating panel. If candles are white/black or grid overlaps heavily, readings may fail; no signal is a safer result.
 - Price-axis OCR is probabilistic. Verify all levels against MT5 before placing a trade. Do **not** use this beta to trade real funds without demo testing.
 - Android requests fresh screen-share consent for each capture session. It cannot covertly capture protected screens.
 - Does not place orders and does not know trading spreads.
 
 ## Use
 1. Install the debug APK on Android 8+ (prefer Android 14+).
-2. Open MT5, select a clearly visible candlestick chart in M1; make green/red colors distinct and zoom to show at least 30 bars.
+2. Open MT5, select a clearly visible candlestick chart in M1; make green/red colors distinct and zoom to show at least 24 bars.
 3. Open YN MT5 Vision, grant floating-window permission, choose signal strictness, press **بدء فحص MT5**.
 4. Approve Android's capture prompt and select the MT5 app window if offered.
 5. Return to MT5; a persistent notification confirms scanning. Tap Stop in YN Vision to end it.
@@ -29,3 +29,6 @@ An independent experimental Android APK for *reading MT5 charts visually* after 
 
 ## Build
 GitHub Actions uploads a **debug Android APK** as a workflow artifact. No app signing key is stored in the repo; debug signing is for testing only.
+
+## v0.2.0 beta — screenshot-based fix
+Identified a real bug on an XAUUSD M1 screenshot: old segmentation classified ~15 bearish-only groups and rejected teal bullish candle pixels. Corrected pure-Java candle palette and confirmed 33 reconstructed candles on the provided screenshot in a separate offline pixel-geometry check. A candle being recognized does not guarantee a qualified entry; rules remain in place to avoid forced trades.
