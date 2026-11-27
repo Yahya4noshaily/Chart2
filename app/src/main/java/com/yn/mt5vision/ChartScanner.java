@@ -18,22 +18,13 @@ public final class ChartScanner {
     }
 
     // Saturated pixels only. White text, yellow price markers and chart grids are ignored.
-    private static int candleColor(int color) {
-        int r = (color >>> 16) & 0xff;
-        int g = (color >>> 8) & 0xff;
-        int b = color & 0xff;
-        if (g > 92 && g > r * 1.30 && g > b * 1.17) return 1;
-        if (r > 110 && r > g * 1.30 && r > b * 1.20) return -1;
-        return 0;
-    }
-
     public static Scan scan(Bitmap bitmap) {
         if (bitmap == null || bitmap.getWidth() < 200 || bitmap.getHeight() < 350) {
             return new Scan(new ArrayList<>(), 0, 0, "دقة الشاشة غير كافية");
         }
         int w = bitmap.getWidth(), h = bitmap.getHeight();
-        int sx = (int)(w * 0.05), ex = (int)(w * 0.84);
-        int sy = (int)(h * 0.12), ey = (int)(h * 0.83);
+        int sx = (int)(w * 0.01), ex = (int)(w * 0.84);
+        int sy = (int)(h * 0.15), ey = (int)(h * 0.885);
         int[] pixels = new int[w * h];
         bitmap.getPixels(pixels, 0, w, 0, 0, w, h);
 
@@ -43,12 +34,12 @@ public final class ChartScanner {
             // Detect colored full-width lines (crosshair or markup), not candles.
             int sampledColored = 0;
             for (int x = sx; x < ex; x += 5) {
-                if (candleColor(pixels[y * w + x]) != 0) sampledColored++;
+                if (CandlePalette.classify(pixels[y * w + x]) != 0) sampledColored++;
             }
             if (sampledColored > (ex - sx) / 12) continue;
             int offset = y * w;
             for (int x = sx; x < ex; x++) {
-                int kind = candleColor(pixels[offset + x]);
+                int kind = CandlePalette.classify(pixels[offset + x]);
                 if (kind == 0) continue;
                 int j = x - sx; counts[j]++;
                 if (kind > 0) green[j]++; else red[j]++;
@@ -82,7 +73,7 @@ public final class ChartScanner {
             for (int y = sy; y < ey; y++) {
                 int hits = 0; int colored = 0;
                 for (int x = sx + start; x <= sx + end; x++) {
-                    int kind = candleColor(pixels[y * w + x]);
+                    int kind = CandlePalette.classify(pixels[y * w + x]);
                     if (kind != 0) colored++;
                     if ((bull && kind > 0) || (!bull && kind < 0)) hits++;
                 }
@@ -105,10 +96,10 @@ public final class ChartScanner {
                     sx + (start + end) / 2));
         }
         String msg;
-        if (candles.size() < 29) {
-            msg = "تم رصد " + candles.size() + " شمعة فقط؛ افتح M1 وأظهر 30+ شمعة بألوان أحمر/أخضر واضحة";
+        if (candles.size() < 24) {
+            msg = "تم رصد " + candles.size() + " شمعة فقط؛ افتح M1 وأظهر 24+ شمعة بألوان أحمر/أخضر أو تركوازي واضحة";
         } else {
-            msg = "جاري تحليل " + candles.size() + " شمعة مباشرة";
+            msg = "تم تمييز " + candles.size() + " شمعة وتحليل فرص الدخول";
         }
         return new Scan(candles, w, h, msg);
     }
