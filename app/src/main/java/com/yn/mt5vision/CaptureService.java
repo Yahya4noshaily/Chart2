@@ -57,7 +57,7 @@ public final class CaptureService extends Service {
     private volatile PriceScale scale;
     private volatile long scaleAt = 0;
     private volatile boolean shuttingDown = false;
-    private long lastScanAt = 0, lastOcrAt = 0, lastBroadcastAt = 0;
+    private long lastScanAt = 0, lastOcrAt = 0, lastBroadcastAt = 0, lastBubbleUpdateAt = 0;
     private StrategyEngine.Candidate pending;
     private int pendingCount = 0;
     private long firstPendingAt = 0;
@@ -158,7 +158,7 @@ public final class CaptureService extends Service {
             if (now - lastBroadcastAt > 4800) {
                 lastBroadcastAt = now;
                 String msg = scan.message;
-                if (scan.candles.size() >= 29 && (scale == null || now - scaleAt > 12000)) {
+                if (scan.candles.size() >= 24 && (scale == null || now - scaleAt > 12000)) {
                     msg += "\nمقياس الأسعار غير مؤكد؛ راجع الأسعار من MT5";
                 }
                 publishStatus(msg, null);
